@@ -301,3 +301,22 @@ cat > trust-policy.json <<EOF
           ]
         }
 
+# Step 02_03 Create IAM Role
+
+        aws iam create-role \
+        --role-name $ROLE_NAME \
+        --assume-role-policy-document file://trust-policy.json
+
+# Step 02_04 Attach ECR Permissions (Attach AWS managed policy for ECR push/pull access)
+
+        aws iam attach-role-policy \
+          --role-name $ROLE_NAME \
+          --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser
+
+        aws iam list-attached-role-policies --role-name $ROLE_NAME
+
+# Create OIDC Provider
+aws iam create-open-id-connect-provider \
+  --url https://token.actions.githubusercontent.com \
+  --client-id-list sts.amazonaws.com
+
