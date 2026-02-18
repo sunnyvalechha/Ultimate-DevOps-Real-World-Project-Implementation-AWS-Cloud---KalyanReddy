@@ -238,3 +238,66 @@ Lowest Priority to Highest Priority, Here 1 is lowest and 4 is highest priority
 5. -var / -var-file                (terraform plan -var-file=abc.tfvars)
 
 
+# Section: 21 CI CD GitOps Pipeline
+
+21_01 - CI Pipeline
+21_02 - Argo CD Setup
+21_03 - CD
+21_04 - End to End deployment
+
+<img width="1601" height="900" alt="image" src="https://github.com/user-attachments/assets/6e6cfcab-c275-496e-be25-5f8d9c0948da" />
+
+CI Flow:
+
+Engineer commits the changes --> GitHub Repo code checkout --> Container image created in ECR with image tag --> Using tag helm chart will create 'values-ui.yml' in Git Repository 
+
+CD Flow:
+
+Argo Cd watches Github continuesly 'values-ui.yml' --> Any changes detects in 'values-ui.yml' Argo CD takes those changes and deploy the new image
+
+# Step 01 - Create ECR Repository
+
+* Repository can be created by two ways, By CLI, By UI
+
+        CLI - aws ecr create-repository --repository-name retail-store/ui --region ap-south-1
+
+
+# Step 02 - Create GitHub OIDC IAM Role
+
+        AWS_REGION="ap-south-1"
+        ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+        GITHUB_REPO="stacksimplify/aws-devops-github-actions-ecr-argocd3"
+        ROLE_NAME="github-actions-oidc-role-ui3"
+
+Verify variables are set correctly
+        
+        echo "AWS Region: $AWS_REGION"
+        echo "Account ID: $ACCOUNT_ID"
+        echo "GitHub Repo: $GITHUB_REPO"
+        echo "IAM Role Name: $ROLE_NAME"
+
+# Step 02_02 Generate Trust Policy
+
+* An AWS trust policy is a JSON document attached to an IAM role that defines which principals (users, roles, AWS services, or external accounts) are allowed to assume that role.
+* It acts as a resource-based security gatekeeper, governing trust relationships and enabling secure, **temporary**, cross-account, or service-level access.
+
+cat > trust-policy.json <<EOF
+
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Federated": "arn:aws:iam::180789647333:oidc-provider/token.actions.githubusercontent.com"
+              },
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": {
+                "StringLike": {
+                  "token.actions.githubusercontent.com:sub": "repo:stacksimplify/aws-devops-github-actions-ecr-argocd3:*"
+                }
+              }
+            }
+          ]
+        }
+
