@@ -229,11 +229,12 @@ c3-datasources-locals.tf
 
 * Variables can be defined by using files like:
 
-Lowest Priority to Highest Priority
+Lowest Priority to Highest Priority, Here 1 is lowest and 4 is highest priority
 
 1. variables.tf                    (default value)
 2. TF_VAR_aws_region=ap-south-1    (Environment variables)
 3. terraform.tfvars                (Auto-loaded if present in working directory)
 4. abc.auto.tfvars                (auto-loaded & overides 'terraform.tfvars')
 5. -var / -var-file                (terraform plan -var-file=abc.tfvars)
+
 
