@@ -211,3 +211,29 @@ c3-datasources-locals.tf
       value = {for az, subnet in aws_subnet.public: az => subnet.id }
       description = "Map of availability zones to public subnet IDs"
     }
+
+
+# Terraform Drift
+
+* Terraform drift occurs when the actual, real-world infrastructure deviates from the desired state defined in your Terraform code.
+* We should not make manual change, consider changes through terraform declarative approach.
+* When we run "terraform plan" it will show output as new change has made but should be 'null' means nothing should be here.
+* When we run "terraform apply" it will remove the changes had done manually.
+
+# Terraform show
+
+* The terraform show command provides human-readable output from a Terraform state file or a saved plan file.
+* It is primarily used to inspect a plan before applying it
+
+# Precedence of terraform variables
+
+* Variables can be defined by using files like:
+
+Lowest Priority to Highest Priority
+
+1. variables.tf                    (default value)
+2. TF_VAR_aws_region=ap-south-1    (Environment variables)
+3. terraform.tfvars                (Auto-loaded if present in working directory)
+4. abc.auto.tfvars                (auto-loaded & overides 'terraform.tfvars')
+5. -var / -var-file                (terraform plan -var-file=abc.tfvars)
+
